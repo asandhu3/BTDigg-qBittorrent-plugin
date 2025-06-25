@@ -99,10 +99,18 @@ class btdig(object):
             if magnet_match and name_match and size_match and desc_link_match:
                 result['link'] = magnet_match.group(1)
                 result['name'] = re.sub(r'<.*?>', '', name_match.group(1)).strip()
-                result['size'] = size_match.group(1).strip().replace('&nbsp;', ' ')
+                result['size'] = self._clean_size(size_match.group(1))
                 result['desc_link'] = desc_link_match.group(1)
                 result['engine_url'] = self.url
                 result['seeds'] = '-1'
                 result['leech'] = '-1'
                 prettyPrinter(result)
 
+    def _clean_size(self, size):
+        # Clean up size - replace problematic characters
+        raw_size = size
+        cleaned_size = raw_size.strip().replace('&nbsp;', ' ')
+        cleaned_size = re.sub(r'[\xa0\u2000-\u200f\u2028-\u202f\u205f\u3000]', ' ', cleaned_size)
+        cleaned_size = re.sub(r'[\x00-\x1f\x7f-\x9f]', '', cleaned_size)
+        cleaned_size = re.sub(r'\s+', ' ', cleaned_size).strip()
+        return cleaned_size
