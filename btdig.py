@@ -22,6 +22,7 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 # For more information, please refer to <https://unlicense.org>
 
+import html
 import urllib.parse
 import urllib.request
 import re
@@ -94,10 +95,10 @@ class btdig(object):
             name_match = re.search(r'<div class="torrent_name".*?><a.*?>(.*?)</a>', block_content, re.DOTALL)
             size_match = re.search(r'<span class="torrent_size"[^>]*>(.*?)</span>', block_content)
             
-            desc_link_match = re.search(r'<div class="torrent_name".*?><a href="([^"]+)"', block_content, re.DOTALL) # could implement retrieving further info on torrent later
+            desc_link_match = re.search(r'<div class="torrent_name".*?><a[^>]+href="(https://[^"]+)"', block_content, re.DOTALL) # could implement retrieving further info on torrent later
             
             if magnet_match and name_match and size_match and desc_link_match:
-                result['link'] = magnet_match.group(1)
+                result['link'] = html.unescape(magnet_match.group(1))
                 result['name'] = re.sub(r'<.*?>', '', name_match.group(1)).strip()
                 result['size'] = self._clean_size(size_match.group(1))
                 result['desc_link'] = desc_link_match.group(1)
